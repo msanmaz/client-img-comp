@@ -10,6 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@jsquash/avif": "^2.0.0",
+    "@jsquash/jpeg": "^1.4.0",
+    "@jsquash/png": "^3.0.1",
+    "@jsquash/webp": "^1.4.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.1.1"

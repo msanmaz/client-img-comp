@@ -10,6 +10,8 @@ export function useFileUpload({ onFileAccepted, maxFiles = 10 } = {}) {
     setIsDragging(false);
   }, []);
 
+ 
+
   const processFiles = useCallback(async (files) => {
     resetState();
     const newErrors = [];

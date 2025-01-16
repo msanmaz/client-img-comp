@@ -5,6 +5,27 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: {
+    exclude: [
+      '@jsquash/avif',
+      '@jsquash/jpeg',
+      '@jsquash/jxl',
+      '@jsquash/png',
+      '@jsquash/webp',
+    ],
+  },
+  build: {
+    target: 'esnext',
+    rollupOptions: {
+      output: {
+        format: 'es',
+        inlineDynamicImports: true
+      }
+    }
+  },
+  worker: {
+    format: 'es'
+  },
   resolve:{
     alias: {
       '@': path.resolve(__dirname, './src'),
