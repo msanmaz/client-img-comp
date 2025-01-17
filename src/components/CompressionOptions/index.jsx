@@ -1,8 +1,9 @@
 /* eslint-disable react/prop-types */
+import { memo } from 'react';
 import { FormatSelector } from './FormatSelector';
 import { QualitySlider } from './QualitySlider';
 
-export function CompressionOptions({ 
+export const CompressionOptions = memo(function CompressionOptions({ 
   format, 
   quality, 
   onFormatChange, 
@@ -10,20 +11,14 @@ export function CompressionOptions({
 }) {
   return (
     <div className="space-y-6 my-8">
-      <div className="space-y-2">
-        <h3 className="font-medium text-gray-200">
-          Output Format
-        </h3>
-        <FormatSelector
-          selected={format}
-          onChange={onFormatChange}
-        />
-      </div>
-
+      <FormatSelector
+        selected={format}
+        onChange={onFormatChange}
+      />
       <QualitySlider
         value={quality}
         onChange={onQualityChange}
       />
     </div>
   );
-}
+});

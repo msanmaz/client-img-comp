@@ -59,7 +59,10 @@ export function getFileType(file) {
 
 
 // Export our core image processing functions
-export const processImage = async (file, options) => {
+export const processImage = async (fileObj, options) => {
+  // Extract the actual File instance
+  const file = fileObj.file || fileObj;  // Handle both cases
+  
   const sourceType = getFileType(file);
   const fileBuffer = await file.arrayBuffer();
   
