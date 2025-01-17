@@ -12,6 +12,7 @@ export function ImageUploadContainer() {
   });
   const [isProcessing, setIsProcessing] = useState(false);
 
+
   const handleFilesAccepted = useCallback((acceptedFiles) => {
     const newFiles = acceptedFiles.map(file => ({
       id: Math.random().toString(36).substr(2, 9),
@@ -67,6 +68,8 @@ export function ImageUploadContainer() {
       const blob = new Blob([compressedBuffer], { 
         type: `image/${compressionSettings.format}` 
       });
+
+
       const preview = URL.createObjectURL(blob);
 
       console.log('Compression complete:', {

@@ -1,8 +1,13 @@
 import { Routes, Route, Link } from 'react-router-dom'
 import Home from '@routes/Home'
 import About from '@routes/About'
+import { useEffect } from 'react'
 
 export default function App() {
+  useEffect(() => { 
+
+    console.log('App mounted in App Component')
+  }, [])
   return (
     <div className="min-h-screen flex flex-col">
       <nav className="bg-gray-800 p-4 w-full">
