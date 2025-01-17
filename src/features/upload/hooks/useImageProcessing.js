@@ -6,7 +6,7 @@ export function useImageProcessing(compressionSettings, setFiles) {
       try {
         // Update status to processing
         setFiles(prev => prev.map(f => 
-          f.id === file.id ? { ...f, status: 'processing', preview:file.file.preview } : f
+          f.id === file.id ? { ...f, status: 'processing'} : f
         ));
         console.log(file,'file processsing in useImageProcessing');
         const compressedBuffer = await processImage(

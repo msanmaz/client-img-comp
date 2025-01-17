@@ -24,16 +24,34 @@ export function ImageUploadContainer() {
   const { addToQueue } = useProcessingQueue(processFile);
 
   const handleFilesAccepted = useCallback((acceptedFiles) => {
-    const newFiles = acceptedFiles.map(file => ({
-      id: Math.random().toString(36).substr(2, 9),
-      file,
-      name: file.name,
-      size: file.size,
-      status: 'pending'
-    }));
-
-    setFiles(prev => [...prev, ...newFiles]);
-    addToQueue(newFiles);
+    const createPreview = (file) => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+    };
+  
+    const processFiles = async (files) => {
+      const newFiles = await Promise.all(
+        files.map(async (file) => {
+          const preview = await createPreview(file.file || file);
+          return {
+            id: Math.random().toString(36).substr(2, 9),
+            file: file.file || file,
+            name: file.name,
+            size: file.size,
+            preview,  // Preview at root level
+            status: 'pending'
+          };
+        })
+      );
+  
+      setFiles(prev => [...prev, ...newFiles]);
+      addToQueue(newFiles);
+    };
+  
+    processFiles(acceptedFiles);
   }, [addToQueue]);
 
 
