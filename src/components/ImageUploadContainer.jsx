@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
-import { DropZone } from './DropZone';
-import { FilePreviewGrid } from './FilePreviewGrid';
+import { DropZone } from './dropZone';
+import { FilePreviewGrid } from './filePreviewGrid';
 import { CompressionOptions } from './CompressionOptions';
 import { useImageProcessing } from '../features/upload/hooks/useImageProcessing';
 import { useProcessingQueue } from '../features/upload/hooks/useProcessingQueue';
@@ -15,20 +15,19 @@ export function ImageUploadContainer() {
     handleQualityChange
   } = useCompressionSettings();
 
-
-  const { processFile } = useImageProcessing(
+  const { processFile, cancelProcessing } = useImageProcessing(
     compressionSettings, 
     setFiles
   );
 
-  const { addToQueue } = useProcessingQueue(processFile);
+  const { addToQueue, processingCount, cancelProcessing: cancelQueue } = useProcessingQueue(processFile);
 
   const handleFilesAccepted = useCallback((acceptedFiles) => {
     const createPreview = (file) => {
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result);
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(file.file || file);
       });
     };
   
@@ -54,8 +53,6 @@ export function ImageUploadContainer() {
     processFiles(acceptedFiles);
   }, [addToQueue]);
 
-
-
   const handleRemoveFile = useCallback((fileId) => {
     setFiles(prev => {
       const file = prev.find(f => f.id === fileId);
@@ -66,26 +63,30 @@ export function ImageUploadContainer() {
     });
   }, []);
 
+  const handleCancelProcessing = useCallback((fileId) => {
+    cancelProcessing(fileId);
+    cancelQueue(fileId);
+  }, [cancelProcessing, cancelQueue]);
 
-    // Memoize child components' props
-    const compressionProps = useMemo(() => ({
-      format: compressionSettings.format,
-      quality: compressionSettings.quality,
-      onFormatChange: handleFormatChange,
-      onQualityChange: handleQualityChange
-    }), [compressionSettings.format, compressionSettings.quality, handleFormatChange, handleQualityChange]);
-  
-    const dropZoneProps = useMemo(() => ({
-      onFileAccepted: handleFilesAccepted,
-      maxFiles: 10
-    }), [handleFilesAccepted]);
-  
-    const previewGridProps = useMemo(() => ({
-      files,
-      onRemove: handleRemoveFile
-    }), [files, handleRemoveFile]);
-  
+  // Memoize child components' props
+  const compressionProps = useMemo(() => ({
+    format: compressionSettings.format,
+    quality: compressionSettings.quality,
+    onFormatChange: handleFormatChange,
+    onQualityChange: handleQualityChange
+  }), [compressionSettings.format, compressionSettings.quality, handleFormatChange, handleQualityChange]);
 
+  const dropZoneProps = useMemo(() => ({
+    onFileAccepted: handleFilesAccepted,
+    maxFiles: 10
+  }), [handleFilesAccepted]);
+
+  const previewGridProps = useMemo(() => ({
+    files,
+    onRemove: handleRemoveFile,
+    onCancel: handleCancelProcessing,
+    processingCount,
+  }), [files, handleRemoveFile, handleCancelProcessing, processingCount]);
 
   return (
     <div className="container mx-auto p-6">

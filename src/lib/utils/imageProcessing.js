@@ -1,55 +1,12 @@
-import * as webp from '@jsquash/webp';
-import * as jpeg from '@jsquash/jpeg';
-import * as png from '@jsquash/png';
-import { ensureWasmLoaded } from './wasm';
+let workerCounter = 0;
 
-export const decode = async (sourceType, fileBuffer) => {
-  // Ensure WASM is loaded before attempting decode
-  await ensureWasmLoaded(sourceType);
-  console.log('sourceType', sourceType);
-  try {
-    switch (sourceType) {
-      case 'jpeg':
-      case 'jpg':
-        return await jpeg.decode(fileBuffer);
-      case 'png':
-        return await png.decode(fileBuffer);
-      case 'webp':
-        return await webp.decode(fileBuffer);
-      default:
-        throw new Error(`Unsupported source type: ${sourceType}`);
-    }
-  } catch (error) {
-    console.error(`Failed to decode ${sourceType} image:`, error);
-    throw new Error(`Failed to decode ${sourceType} image: ${error.message}`);
-  }
-};
-
-export const encode = async (outputType, imageData, options) => {
-  // Ensure WASM is loaded before attempting encode
-  await ensureWasmLoaded(outputType);
-  
-  try {
-    switch (outputType) {
-      case 'webp':
-        return await webp.encode(imageData, { 
-          quality: options.quality / 100 // Convert to 0-1 range
-        });
-      case 'jpeg':
-        return await jpeg.encode(imageData, { 
-          quality: options.quality 
-        });
-      case 'png':
-        return await png.encode(imageData);
-      default:
-        throw new Error(`Unsupported output type: ${outputType}`);
-    }
-  } catch (error) {
-    console.error(`Failed to encode to ${outputType}:`, error);
-    throw new Error(`Failed to encode to ${outputType}: ${error.message}`);
-  }
-};
-
+function createWorker() {
+  const worker = new Worker(
+    new URL('../workers/imageProcessing.worker.js', import.meta.url),
+    { type: 'module' }
+  );
+  return worker;
+}
 
 export function getFileType(file) {
   if (file.name.toLowerCase().endsWith('jxl')) return 'jxl';
@@ -57,22 +14,57 @@ export function getFileType(file) {
   return type === 'jpeg' ? 'jpg' : type;
 }
 
+export const processImage = (fileObj, options) => {
+  return new Promise((resolve, reject) => {
+    const file = fileObj.file || fileObj;
+    const sourceType = getFileType(file);
+    
+    console.log('🎯 Processing image:', {
+      name: file.name,
+      type: sourceType,
+      size: file.size,
+      options
+    });
 
-// Export our core image processing functions
-export const processImage = async (fileObj, options) => {
-  // Extract the actual File instance
-  const file = fileObj.file || fileObj;  // Handle both cases
-  
-  const sourceType = getFileType(file);
-  const fileBuffer = await file.arrayBuffer();
-  
-  // Decode
-  const imageData = await decode(sourceType, fileBuffer);
-  
-  // Encode
-  const compressedBuffer = await encode(options.format, imageData, options);
-  
-  return compressedBuffer;
+    file.arrayBuffer().then(buffer => {
+      // Create a new worker for each file
+      const worker = createWorker();
+      const workerId = ++workerCounter;
+      
+      console.log(`🔧 Created worker #${workerId} for ${file.name}`);
+      
+      worker.onmessage = (e) => {
+        if (e.data.success) {
+          console.log(`✅ Worker #${workerId} completed successfully`);
+          resolve(e.data.buffer);
+        } else {
+          console.error(`❌ Worker #${workerId} failed:`, e.data.error);
+          reject(new Error(e.data.error));
+        }
+        // Terminate the worker after completion
+        worker.terminate();
+        console.log(`🔚 Terminated worker #${workerId}`);
+      };
+
+      worker.onerror = (error) => {
+        console.error(`💥 Worker #${workerId} error:`, error);
+        reject(new Error(`Worker error: ${error.message}`));
+        worker.terminate();
+        console.log(`🔚 Terminated worker #${workerId} due to error`);
+      };
+
+      console.log(`📤 Sending to worker #${workerId}:`, { 
+        fileName: file.name,
+        bufferSize: buffer.byteLength 
+      });
+      
+      worker.postMessage({
+        file: buffer,
+        sourceType,
+        options
+      }, [buffer]);
+    });
+  });
 };
 
 
