@@ -8,6 +8,7 @@ High-performance client-side image compression tool built with React and Vite. C
   - No server uploads needed - all processing happens in your browser
   - Instant compression feedback
   - Privacy-focused: your files never leave your device
+  - WebAssembly powered compression
 
 - **💪 Compression Features**
   - Support for WebP, JPEG, PNG formats
@@ -79,10 +80,10 @@ npm or yarn
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/image-squish.git
+git clone https://github.com/msanmaz/client-img-comp
 
 # Navigate to project directory
-cd image-squish
+cd client-img-comp
 
 # Install dependencies
 npm install
@@ -168,4 +169,4 @@ MIT License - see LICENSE file for details
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read our contributing guidelines before submitting pull requests.
+Contributions are welcome!
