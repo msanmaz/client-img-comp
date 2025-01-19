@@ -1,15 +1,73 @@
-import { useFileUpload } from '@hooks/useFileUpload';
+import { useCallback, useState } from 'react';
+import { fileService } from '../features/upload/fileService';
 
 // eslint-disable-next-line react/prop-types
 export function DropZone({ onFileAccepted, maxFiles }) {
-  const {
-    isDragging,
-    errors,
-    handleDrop,
-    handleDragOver,
-    handleDragLeave,
-    processFiles
-  } = useFileUpload({ onFileAccepted, maxFiles });
+  const [isDragging, setIsDragging] = useState(false);
+  const [errors, setErrors] = useState([]);
+
+  const validateAndProcessFiles = useCallback((files) => {
+    const validationResults = files.map(file => ({
+      file,
+      validation: fileService.validateFile(file)
+    }));
+
+    const newErrors = validationResults
+      .filter(result => !result.validation.valid)
+      .map(result => result.validation.error);
+
+    if (newErrors.length > 0) {
+      setErrors(newErrors);
+      return [];
+    }
+
+    setErrors([]);
+    return validationResults
+      .filter(result => result.validation.valid)
+      .map(result => result.file);
+  }, []);
+
+  const handleDrop = useCallback((event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragging(false);
+
+    const droppedFiles = Array.from(event.dataTransfer.files);
+    const validFiles = validateAndProcessFiles(droppedFiles);
+
+    if (validFiles.length > 0) {
+      onFileAccepted(validFiles);
+    }
+  }, [onFileAccepted, validateAndProcessFiles]);
+
+  const handleDragOver = useCallback((event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleClick = useCallback(() => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = maxFiles > 1;
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      if (e.target.files) {
+        const files = Array.from(e.target.files);
+        const validFiles = validateAndProcessFiles(files);
+        if (validFiles.length > 0) {
+          onFileAccepted(validFiles);
+        }
+      }
+    };
+    input.click();
+  }, [onFileAccepted, validateAndProcessFiles, maxFiles]);
 
   return (
     <div className="relative">
@@ -19,22 +77,12 @@ export function DropZone({ onFileAccepted, maxFiles }) {
           border-4 border-dashed rounded-lg
           flex flex-col items-center justify-center
           transition-all duration-200
-          ${isDragging ? 
-            'border-blue-500 bg-blue-50' : 
-            'border-gray-300 hover:border-gray-400'
-          }
+          ${isDragging ? 'border-blue-500 bg-blue-50/10' : 'border-gray-300 hover:border-gray-400'}
         `}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        onClick={() => {
-          const input = document.createElement('input');
-          input.type = 'file';
-          input.multiple = true;
-          input.accept = 'image/*';
-          input.onchange = (e) => processFiles(e.target.files);
-          input.click();
-        }}
+        onClick={handleClick}
       >
         <div className="text-center p-8">
           <div className="mb-4">
@@ -66,7 +114,7 @@ export function DropZone({ onFileAccepted, maxFiles }) {
           </p>
 
           {errors.length > 0 && (
-            <div className="mt-4 p-4 bg-red-50 rounded-md">
+            <div className="mt-4 p-4 bg-red-50 rounded-md" role="alert">
               {errors.map((error, index) => (
                 <p 
                   key={index}

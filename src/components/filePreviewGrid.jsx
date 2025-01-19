@@ -2,7 +2,7 @@
 import { useCallback } from 'react';
 import { generateDownloadFilename, formatFileSize } from '../utils/fileUtils';
 
-export function FilePreviewGrid({ files, onRemove, processingCount }) {
+export function FilePreviewGrid({ files, onRemove, onCancel, processingCount }) {
   const handleDownload = useCallback((file) => {
     if (!file.blob || file.status !== 'complete') return;
 
@@ -41,23 +41,38 @@ export function FilePreviewGrid({ files, onRemove, processingCount }) {
             {/* Controls Overlay */}
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/50 transition-opacity duration-200">
               {file.status === 'complete' && (
+                <>
+                  <button
+                    onClick={() => handleDownload(file)}
+                    aria-label="Download compressed file"
+                    className="mx-2 p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => onRemove(file.id)}
+                    aria-label="Remove file"
+                    className="mx-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </>
+              )}
+              {file.status === 'processing' && (
                 <button
-                  onClick={() => handleDownload(file)}
-                  className="mx-2 p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
+                  onClick={() => onCancel(file.id)}
+                  aria-label="Cancel processing"
+                  className="mx-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               )}
-              <button
-                onClick={() => onRemove(file.id)}
-                className="mx-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
             </div>
           </div>
 

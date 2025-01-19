@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { DropZone } from './dropZone';
 import { FilePreviewGrid } from './filePreviewGrid';
-import { CompressionOptions } from './CompressionOptions';
+import { CompressionOptions } from './CompressionOptions/index'
 import { useImageProcessing } from '../features/upload/hooks/useImageProcessing';
 import { useProcessingQueue } from '../features/upload/hooks/useProcessingQueue';
 import { useCompressionSettings } from '../features/upload/hooks/useCompressionSettings';
@@ -89,7 +89,7 @@ export function ImageUploadContainer() {
   }), [files, handleRemoveFile, handleCancelProcessing, processingCount]);
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6" data-testid="image-upload-container">
       <h1 className="text-2xl text-center font-bold mb-6">
         Image Compression Tool
       </h1>

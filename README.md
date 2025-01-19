@@ -5,35 +5,66 @@ High-performance client-side image compression tool built with React and Vite. C
 ## ✨ Features
 
 - **🚀 Pure Client-Side Processing**
-  - No server uploads needed
-  - Instant compression
-  - Privacy-focused
+  - No server uploads needed - all processing happens in your browser
+  - Instant compression feedback
+  - Privacy-focused: your files never leave your device
 
-- **💪 Powerful Compression**
-  - Up to 90% size reduction
-  - Multiple format support (WebP, JPEG, PNG)
-  - Quality control
+- **💪 Compression Features**
+  - Support for WebP, JPEG, PNG formats
+  - Adjustable quality settings (0-100)
+  - File size validation (up to 30MB)
+  - Batch processing support
 
-- **⚡ Performance Optimized**
-  - WebAssembly-powered compression
-  - Efficient state management
-  - Minimal re-renders
+- **⚡ Modern Architecture**
+  - Custom hooks for state management
+  - Component-based design
+  - Comprehensive test coverage
+  - Error handling and validation
 
-- **🎨 Modern UI/UX**
+- **🎨 Polished UI/UX**
   - Drag and drop interface
-  - Real-time preview
-  - Responsive design
-  - Dark mode support
+  - Live previews
+  - Progress indicators
+  - Responsive layout
+
+
+### Hook Documentation
+
+#### `useProcessingQueue`
+A custom hook that manages parallel processing of files with the following features:
+- Maintains a queue of files to be processed
+- Handles parallel processing with configurable concurrency (default: 3 files)
+- Provides queue management with add and cancel operations
+- Tracks processing status and queue statistics
+- Automatically processes next items when slots become available
+
+
+#### `useImageProcessing`
+A custom hook that handles image compression and processing with the following features:
+- Processes images according to specified compression settings
+- Manages processing state for each file (processing, complete, error)
+- Supports cancellation of ongoing operations
+- Generates previews and compressed blobs
+- Handles errors and cleanup
+
+
+
+#### `useCompressionSettings`
+A custom hook that manages compression configuration with the following features:
+- Controls image compression parameters
+- Handles format selection (JPEG, PNG, WebP)
+- Manages quality settings
+- Provides dimension constraints
 
 ## 🛠️ Technology Stack
 
 | Technology | Purpose |
 |------------|---------|
-| React 18 | Frontend Framework |
+| React 18 | UI Framework |
 | Vite | Build Tool |
 | TailwindCSS | Styling |
-| jsquash | WebAssembly-based Codecs |
-| React Hooks | State Management |
+| Vitest | Testing |
+| React Testing Library | Component Testing |
 
 ## 🚀 Getting Started
 
@@ -48,7 +79,7 @@ npm or yarn
 
 ```bash
 # Clone the repository
-git clone https://github.com/msanmaz/client-img-comp.git
+git clone https://github.com/yourusername/image-squish.git
 
 # Navigate to project directory
 cd image-squish
@@ -58,29 +89,83 @@ npm install
 
 # Start development server
 npm run dev
+
+# Run tests
+npm test
 ```
 
-## 🏗️ Architecture
-
-### Project Structure
+## 🏗️ Project Structure
 
 ```
 src/
-├── components/          # Reusable UI components
-│   ├── CompressionOptions/
-│   │   ├── FormatSelector.jsx
-│   │   ├── QualitySlider.jsx
+├── components/                # UI Components
+│   ├── CompressionOptions/   # Compression settings UI
+│   │   ├── __tests__/
+│   │   │   └── CompressionOptions.test.jsx
 │   │   └── index.jsx
-│   ├── DropZone/
-│   │   └── index.jsx
-│   └── FilePreviewGrid/
-│       └── index.jsx
-├── lib/
-│   ├── utils/
-│   │   ├── imageProcessing.js
-│   │   └── wasm.js
-│   └── compression/
-│       └── codecs.js
-└── hooks/
-    └── useFileUpload.js
+│   ├── DropZone/            # File upload area
+│   │   ├── __tests__/
+│   │   │   └── DropZone.test.jsx
+│   │   └── dropZone.jsx
+│   ├── FilePreviewGrid/     # Image preview grid
+│   │   ├── __tests__/
+│   │   │   └── FilePreviewGrid.test.jsx
+│   │   └── filePreviewGrid.jsx
+│   └── ImageUploadContainer.jsx
+├── features/                # Core features
+│   └── upload/
+│       ├── hooks/          # Custom hooks
+│       │   ├── __tests__/
+│       │   │   └── useCompressionSettings.test.js
+│       │   ├── useCompressionSettings.js
+│       │   ├── useImageProcessing.js
+│       │   ├── useProcessingQueue.js
+│       │   └── useFileUpload.js
+│       └── fileService.js  # File handling utilities
+├── routes/                 # Route components
+│   ├── __tests__/
+│   │   └── Home.test.jsx
+│   └── Home.jsx
+├── pages/                  # Page components
+│   ├── __tests__/
+│   │   └── ImageUploadPage.test.jsx
+│   └── ImageUploadPage.jsx
+└── test/                   # Test utilities
+    ├── setup.js
+    └── utils.jsx
 ```
+
+## 🧪 Testing
+
+The project uses Vitest and React Testing Library for testing. Tests are organized alongside their components:
+
+### Component Tests
+- DropZone: File upload validation and handling
+- FilePreviewGrid: Image preview and status display
+- CompressionOptions: Format and quality control
+
+### Hook Tests
+- useCompressionSettings: Tests for managing compression settings
+- useImageProcessing: Tests for processing and validating images
+- useProcessingQueue: Tests for managing the processing queue
+
+### Utility Tests
+- fileService: File validation and processing
+- Test utilities for mocking files and events
+
+Run tests with:
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm test -- --watch
+```
+
+## 📝 License
+
+MIT License - see LICENSE file for details
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our contributing guidelines before submitting pull requests.
