@@ -2,8 +2,8 @@
 
 High-performance client-side image compression tool built with React and Vite. Compress your images directly in the browser without compromising quality or uploading to servers.
 
+-- Currently only webp format is outputted... soon support for other options will be adddd
 ## ✨ Features
-
 - **🚀 Pure Client-Side Processing**
   - No server uploads needed - all processing happens in your browser
   - Instant compression feedback
