@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import { DropZone } from './dropZone';
-import { FilePreviewGrid } from './filePreviewGrid';
+import { FilePreviewGrid } from './FilePreviewGrid/filePreviewGrid';
 import { CompressionOptions } from './CompressionOptions/index'
 import { useImageProcessing } from '../features/upload/hooks/useImageProcessing';
 import { useProcessingQueue } from '../features/upload/hooks/useProcessingQueue';
@@ -53,20 +53,29 @@ export function ImageUploadContainer() {
     processFiles(acceptedFiles);
   }, [addToQueue]);
 
+  const handleCancelProcessing = useCallback((fileId) => {
+    // First update the file status to cancelled
+    setFiles(prev => prev.map(f => 
+      f.id === fileId 
+        ? { ...f, status: 'cancelled' }
+        : f
+    ));
+    
+    // Then cancel the processing
+    cancelProcessing(fileId);
+    cancelQueue(fileId);
+  }, [cancelProcessing, cancelQueue]);
+
   const handleRemoveFile = useCallback((fileId) => {
     setFiles(prev => {
       const file = prev.find(f => f.id === fileId);
+      // Allow removal if file is cancelled or in any other state
       if (file?.preview) {
         URL.revokeObjectURL(file.preview);
       }
       return prev.filter(f => f.id !== fileId);
     });
   }, []);
-
-  const handleCancelProcessing = useCallback((fileId) => {
-    cancelProcessing(fileId);
-    cancelQueue(fileId);
-  }, [cancelProcessing, cancelQueue]);
 
   // Memoize child components' props
   const compressionProps = useMemo(() => ({

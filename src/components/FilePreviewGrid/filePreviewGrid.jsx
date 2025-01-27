@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useCallback } from 'react';
-import { generateDownloadFilename, formatFileSize } from '../utils/fileUtils';
+import { generateDownloadFilename, formatFileSize } from '../../utils/fileUtils';
 
 export function FilePreviewGrid({ files, onRemove, onCancel, processingCount }) {
   const handleDownload = useCallback((file) => {
@@ -62,10 +62,21 @@ export function FilePreviewGrid({ files, onRemove, onCancel, processingCount }) 
                   </button>
                 </>
               )}
-              {file.status === 'processing' && (
+              {(file.status === 'processing' || file.status === 'pending') && (
                 <button
                   onClick={() => onCancel(file.id)}
                   aria-label="Cancel processing"
+                  className="mx-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+              {file.status === 'cancelled' && (
+                <button
+                  onClick={() => onRemove(file.id)}
+                  aria-label="Remove cancelled file"
                   className="mx-2 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,6 +106,9 @@ export function FilePreviewGrid({ files, onRemove, onCancel, processingCount }) 
             )}
             {file.status === 'error' && (
               <p className="text-xs text-red-500">{file.error}</p>
+            )}
+            {file.status === 'cancelled' && (
+              <p className="text-xs text-yellow-500">Cancelled - Click to remove</p>
             )}
           </div>
         </div>
