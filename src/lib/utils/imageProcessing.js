@@ -19,11 +19,17 @@ export const processImage = (fileObj, options) => {
     const file = fileObj.file || fileObj;
     const sourceType = getFileType(file);
     
+    // Validate compression options
+    const compressionOptions = {
+      format: options?.format || 'webp',
+      quality: options?.format === 'png' ? 100 : (options?.quality || 75)
+    };
+    
     console.log('🎯 Processing image:', {
       name: file.name,
       type: sourceType,
       size: file.size,
-      options
+      options: compressionOptions
     });
 
     file.arrayBuffer().then(buffer => {
@@ -61,7 +67,7 @@ export const processImage = (fileObj, options) => {
       worker.postMessage({
         file: buffer,
         sourceType,
-        options
+        options: compressionOptions
       }, [buffer]);
     });
   });

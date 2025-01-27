@@ -1,6 +1,8 @@
 import * as webp from '@jsquash/webp';
 import * as jpeg from '@jsquash/jpeg';
 import * as png from '@jsquash/png';
+import * as avif from '@jsquash/avif';
+import * as jxl from '@jsquash/jxl';
 
 // Initialize WASM modules
 const wasmInitialized = new Map();
@@ -19,6 +21,12 @@ async function ensureWasmLoaded(format) {
         break;
       case 'png':
         await import('@jsquash/png');
+        break;
+      case 'avif':
+        await import('@jsquash/avif');
+        break;
+      case 'jxl':
+        await import('@jsquash/jxl');
         break;
       default:
         throw new Error(`Unsupported format: ${format}`);
@@ -41,6 +49,10 @@ async function decode(sourceType, fileBuffer) {
         return await png.decode(fileBuffer);
       case 'webp':
         return await webp.decode(fileBuffer);
+      case 'avif':
+        return await avif.decode(fileBuffer);
+      case 'jxl':
+        return await jxl.decode(fileBuffer);
       default:
         throw new Error(`Unsupported source type: ${sourceType}`);
     }
@@ -64,6 +76,17 @@ async function encode(outputType, imageData, options) {
         });
       case 'png':
         return await png.encode(imageData);
+      case 'avif':
+        return await avif.encode(imageData, {
+          quality: options.quality,
+          speed: 8  // Range 0-10, higher is faster but lower quality
+        });
+      case 'jxl':
+        return await jxl.encode(imageData, {
+          quality: options.quality,
+          speed: 7,  // Range 1-9, higher is faster but lower quality
+          progressive: true
+        });
       default:
         throw new Error(`Unsupported output type: ${outputType}`);
     }
@@ -106,4 +129,4 @@ self.onmessage = async (e) => {
       error: error.message 
     });
   }
-}; 
+};

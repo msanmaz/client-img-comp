@@ -2,16 +2,25 @@ import { useCallback, useState } from "react";
 
 export function useCompressionSettings() {
     const [settings, setSettings] = useState({
-      format: 'webp',
-      quality: 75
+      format: 'webp',  // Default format
+      quality: 75      // Default quality
     });
   
     const handleFormatChange = useCallback((format) => {
-      setSettings(prev => ({ ...prev, format }));
+      // Ensure quality is appropriate for the format
+      setSettings(prev => ({ 
+        ...prev, 
+        format,
+        // PNG doesn't use quality setting
+        quality: format === 'png' ? 100 : prev.quality
+      }));
     }, []);
   
     const handleQualityChange = useCallback((quality) => {
-      setSettings(prev => ({ ...prev, quality }));
+      setSettings(prev => ({ 
+        ...prev, 
+        quality: prev.format === 'png' ? 100 : quality 
+      }));
     }, []);
   
     return {
@@ -19,5 +28,5 @@ export function useCompressionSettings() {
       handleFormatChange,
       handleQualityChange
     };
-  }
+}
   
