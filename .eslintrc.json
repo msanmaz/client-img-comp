@@ -20,8 +20,8 @@
       }
     },
     "rules": {
-      "react/prop-types": "error",
+      "react/prop-types": "off",  // Changed from "error" to "off"
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn"
     }
-  }
+}

@@ -67,4 +67,30 @@ describe('FilePreviewGrid', () => {
     const compressedSize = formatFileSize(mockFiles[0].compressedSize)
     expect(screen.getByText(new RegExp(`${originalSize}.+${compressedSize}`))).toBeInTheDocument()
   })
-}) 
+
+  it('shows edit button for completed files', () => {
+    render(<FilePreviewGrid {...defaultProps} />);
+    const editButton = screen.getByRole('button', { name: /edit image/i });
+    expect(editButton).toBeInTheDocument();
+  });
+
+  it('opens editor when edit button is clicked', () => {
+    render(<FilePreviewGrid {...defaultProps} />);
+    const editButton = screen.getByRole('button', { name: /edit image/i });
+    fireEvent.click(editButton);
+    expect(screen.getByText('Edit Image')).toBeInTheDocument();
+  });
+
+  it('calls onImageUpdate when edit is completed', async () => {
+    const onImageUpdate = vi.fn();
+    render(<FilePreviewGrid {...defaultProps} onImageUpdate={onImageUpdate} />);
+    
+    const editButton = screen.getByRole('button', { name: /edit image/i });
+    fireEvent.click(editButton);
+    
+    const saveButton = screen.getByText('Save Changes');
+    fireEvent.click(saveButton);
+    
+    expect(onImageUpdate).toHaveBeenCalled();
+  });
+});

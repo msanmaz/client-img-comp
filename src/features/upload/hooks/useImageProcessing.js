@@ -15,19 +15,21 @@ export function useImageProcessing(compressionSettings, setFiles) {
   }, []);
 
   const processFile = useCallback(async (file) => {
-    // Skip if this file was aborted
-    if (abortedFiles.current.has(file.id)) {
-      return { success: false, error: 'Operation aborted' };
-    }
+    // Remove from aborted files if it was previously cancelled
+    abortedFiles.current.delete(file.id);
 
     try {
       // Update status to processing
       setFiles(prev => prev.map(f => 
-        f.id === file.id ? { ...f, status: 'processing' } : f
+        f.id === file.id ? { ...f, status: 'processing', width: file.width, height: file.height } : f
       ));
 
       // Process the image in the worker
-      const compressedBuffer = await processImage(file, compressionSettings);
+      const compressedBuffer = await processImage(file, {
+        ...compressionSettings,
+        width: file.width,      
+        height: file.height  
+      });
 
       // Skip further processing if aborted
       if (abortedFiles.current.has(file.id)) {
@@ -75,7 +77,11 @@ export function useImageProcessing(compressionSettings, setFiles) {
   // Add ability to cancel processing
   const cancelProcessing = useCallback((fileId) => {
     abortedFiles.current.add(fileId);
-  }, []);
+    // Update file status to cancelled
+    setFiles(prev => prev.map(f => 
+      f.id === fileId ? { ...f, status: 'cancelled' } : f
+    ));
+  }, [setFiles]);
 
   // Clear abort flag for a file
   const clearAborted = useCallback((fileId) => {

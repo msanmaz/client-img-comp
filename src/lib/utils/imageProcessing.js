@@ -18,17 +18,31 @@ export const processImage = (fileObj, options) => {
   return new Promise((resolve, reject) => {
     const file = fileObj.file || fileObj;
     const sourceType = getFileType(file);
+
+    console.log('🔍 Debug processImage:', {
+      file: {
+        name: file.name,
+        type: file.type,
+        size: file.size
+      },
+      options: options,
+      sourceType
+    });
     
     // Validate compression options
     const compressionOptions = {
       format: options?.format || 'webp',
-      quality: options?.format === 'png' ? 100 : (options?.quality || 75)
+      quality: options?.format === 'png' ? 100 : (options?.quality || 75),
+      width: options?.width,  
+      height: options?.height  
     };
-    
+    console.log('📐 Compression options:', compressionOptions);
+
     console.log('🎯 Processing image:', {
       name: file.name,
       type: sourceType,
       size: file.size,
+      dimensions: `${compressionOptions.width}x${compressionOptions.height}`,
       options: compressionOptions
     });
 

@@ -95,28 +95,67 @@ async function encode(outputType, imageData, options) {
   }
 }
 
+async function resizeImage(imageData, targetWidth, targetHeight) {
+  console.log('📏 Resize params:', {
+    sourceWidth: imageData.width,
+    sourceHeight: imageData.height,
+    targetWidth,
+    targetHeight
+  });
+
+  // Create temporary canvas for the source image
+  const sourceCanvas = new OffscreenCanvas(imageData.width, imageData.height);
+  const sourceCtx = sourceCanvas.getContext('2d');
+  
+  // Put the imageData on the source canvas
+  sourceCtx.putImageData(imageData, 0, 0);
+  
+  // Create target canvas
+  const targetCanvas = new OffscreenCanvas(targetWidth, targetHeight);
+  const targetCtx = targetCanvas.getContext('2d');
+  
+  // Draw from source to target with resize
+  targetCtx.drawImage(
+    sourceCanvas,
+    0, 0, imageData.width, imageData.height,
+    0, 0, targetWidth, targetHeight
+  );
+  
+  // Get the resized image data
+  return targetCtx.getImageData(0, 0, targetWidth, targetHeight);
+}
+
 self.onmessage = async (e) => {
   const { file, sourceType, options } = e.data;
   
-  console.log('👷 Worker received file:', { 
-    sourceType, 
+  console.log('👷 Worker received:', {
+    sourceType,
     options,
-    bufferSize: file.byteLength 
+    bufferSize: file.byteLength
   });
   
   try {
-    const imageData = await decode(sourceType, file);
-    console.log('🔍 Decoded image:', { 
-      width: imageData.width, 
-      height: imageData.height 
+    let imageData = await decode(sourceType, file);
+    console.log('🎨 Decoded image:', {
+      width: imageData.width,
+      height: imageData.height,
+      hasData: !!imageData.data
     });
     
+    if (options.width && options.height) {
+      console.log('✂️ Resizing to:', {
+        width: options.width,
+        height: options.height
+      });
+      imageData = await resizeImage(imageData, options.width, options.height);
+      console.log('✅ Resize complete:', {
+        width: imageData.width,
+        height: imageData.height
+      });
+    }
+    
+    console.log('🎯 Encoding with:', options);
     const compressedBuffer = await encode(options.format, imageData, options);
-    console.log('💾 Compressed image:', { 
-      originalSize: file.byteLength,
-      compressedSize: compressedBuffer.byteLength,
-      ratio: (compressedBuffer.byteLength / file.byteLength * 100).toFixed(2) + '%'
-    });
     
     self.postMessage({ 
       success: true, 

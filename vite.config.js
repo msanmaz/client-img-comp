@@ -39,6 +39,8 @@ export default defineConfig({
       '@hooks': path.resolve(__dirname, './src/features/upload/hooks'),
       '@fileUpload': path.resolve(__dirname, './src/features/upload')
 
-    }
+    },
+    extensions: ['.js', '.jsx', '.ts', '.tsx']
+
   }
 })
