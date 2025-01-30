@@ -74,7 +74,6 @@ export function useImageProcessing(compressionSettings, setFiles) {
     }
   }, [compressionSettings, setFiles]);
 
-  // Add ability to cancel processing
   const cancelProcessing = useCallback((fileId) => {
     abortedFiles.current.add(fileId);
     // Update file status to cancelled

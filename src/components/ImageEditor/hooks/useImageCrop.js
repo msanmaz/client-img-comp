@@ -10,34 +10,39 @@ export function useImageCrop() {
   }, []);
 
   const generateCroppedImage = useCallback(async (imageRef, pixelCrop) => {
-    if (!imageRef || !pixelCrop) return null;
+    if (!imageRef || !pixelCrop?.width || !pixelCrop?.height) return null;
 
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
+    const scaleX = imageRef.naturalWidth / imageRef.width;
+    const scaleY = imageRef.naturalHeight / imageRef.height;
 
-    canvas.width = pixelCrop.width;
-    canvas.height = pixelCrop.height;
+    // Set canvas dimensions to match the cropped area
+    canvas.width = pixelCrop.width * scaleX;
+    canvas.height = pixelCrop.height * scaleY;
 
     ctx.drawImage(
       imageRef,
-      pixelCrop.x,
-      pixelCrop.y,
-      pixelCrop.width,
-      pixelCrop.height,
+      pixelCrop.x * scaleX,
+      pixelCrop.y * scaleY,
+      pixelCrop.width * scaleX,
+      pixelCrop.height * scaleY,
       0,
       0,
-      pixelCrop.width,
-      pixelCrop.height
+      canvas.width,
+      canvas.height
     );
 
     return new Promise((resolve) => {
       canvas.toBlob((blob) => {
-        resolve({
-          blob,
-          url: URL.createObjectURL(blob),
-          width: pixelCrop.width,
-          height: pixelCrop.height
-        });
+        if (blob) {
+          resolve({
+            blob,
+            url: URL.createObjectURL(blob),
+            width: canvas.width,
+            height: canvas.height
+          });
+        }
       }, 'image/jpeg', 1);
     });
   }, []);

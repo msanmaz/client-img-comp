@@ -17,7 +17,17 @@ export function renderWithRouter(ui, { route = '/' } = {}) {
 }
 
 export const createMockFile = (name = 'test.jpg', type = 'image/jpeg', size = 1024) => {
-  return new File(['mock content'], name, { type })
+  const blob = new Blob(['mock content'], { type });
+  const file = new File([blob], name, { type });
+  
+  // Add custom properties needed for testing
+  Object.defineProperty(file, 'size', { value: size });
+  Object.defineProperty(file, 'preview', {
+    value: 'data:image/jpeg;base64,mockpreview',
+    writable: true
+  });
+
+  return file;
 }
 
 export const createDataTransfer = (files) => {
@@ -28,7 +38,11 @@ export const createDataTransfer = (files) => {
       type: file.type,
       getAsFile: () => file
     })),
-    types: ['Files']
+    types: ['Files'],
+    getData: () => '',
+    setData: vi.fn(),
+    clearData: vi.fn(),
+    setDragImage: vi.fn()
   }
 }
 
@@ -44,10 +58,11 @@ export const mockFileReader = () => {
 
   window.FileReader.prototype.readAsDataURL = function(file) {
     setTimeout(() => {
-      this.result = 'data:image/jpeg;base64,mock'
-      this.onload && this.onload()
-    }, 0)
+      // Create a mock base64 string that includes file information
+      this.result = `data:${file.type};base64,${btoa(`mock-content-for-${file.name}-${file.size}`)}`;
+      this.onload && this.onload();
+    }, 0);
   }
 
   return mock
-} 
+}

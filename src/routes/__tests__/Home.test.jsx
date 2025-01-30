@@ -12,7 +12,7 @@ describe('Home Component', () => {
   it('renders with correct background and layout classes', () => {
     renderWithRouter(<Home />)
     const container = document.querySelector('.min-h-screen')
-    expect(container).toHaveClass('bg-black')
+    expect(container).toHaveClass('bg-gray-100')
     expect(container).toHaveClass('flex')
     expect(container).toHaveClass('items-center')
     expect(container).toHaveClass('justify-center')

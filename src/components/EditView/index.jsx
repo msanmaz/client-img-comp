@@ -45,6 +45,7 @@ export function EditView({ files, onBack, setFiles }) {
         const firstImageDims = dimensions[files[0].id];
         setSettings(prev => ({
           ...prev,
+          aspectRatio: `${firstImageDims.width}x${firstImageDims.height}`,
           width: firstImageDims.width,
           height: firstImageDims.height
         }));
@@ -209,8 +210,29 @@ export function EditView({ files, onBack, setFiles }) {
     addToQueue(processOptions);
   }, [settings, addToQueue]);
 
+  const handleCroppedImage = useCallback((croppedImage) => {
+    setFiles(prev => prev.map(f => 
+      f.id === croppedImage.id ? {
+        ...f,
+        preview: croppedImage.preview,
+        width: croppedImage.width,
+        height: croppedImage.height,
+        blob: croppedImage.blob,
+        isEdited: true
+      } : f
+    ));
+
+    setImageDimensions(prev => ({
+      ...prev,
+      [croppedImage.id]: {
+        width: croppedImage.width,
+        height: croppedImage.height
+      }
+    }));
+  }, []);
+
   return (
-    <div className="max-w-6xl mx-auto bg-gray-100 text-gray-700">
+    <div className="max-w-6xl mx-auto bg-gray-100 text-gray-700" data-testid="edit-view">
       <div className="flex items-center justify-between gap-4 mb-6">
         <button onClick={onBack} className="text-gray-400 hover:text-white">
           ← Back to Upload
@@ -226,13 +248,17 @@ export function EditView({ files, onBack, setFiles }) {
         originalDimensions={imageDimensions[files[0]?.id] || { width: 0, height: 0 }}
       />
 
-<ImageGrid 
-        files={files}
-        onImageUpdate={handleProcessImages}
-        previewDimensions={previewDimensions}
-        onCancel={cancelProcessing}
-        settings={settings} 
-      />
+      <div className="preview-container" data-testid="preview-container">
+        <ImageGrid 
+          data-testid="image-grid"
+          files={files}
+          onImageUpdate={handleProcessImages}
+          onCropComplete={handleCroppedImage}
+          previewDimensions={previewDimensions}
+          onCancel={cancelProcessing}
+          settings={settings} 
+        />
+      </div>
 
       <button 
         onClick={() => handleProcessImages(files)}

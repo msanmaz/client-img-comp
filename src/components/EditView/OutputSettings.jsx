@@ -83,7 +83,7 @@ export function OutputSettings({ settings, onSettingsChange, originalDimensions 
           <h2 className="text-lg font-medium">Output Settings</h2>
         </div>
         
-        <p className="text-sm text-gray-500 mb-4">
+        <p className="text-sm text-gray-500 mb-4" data-testid="original-dimensions">
           Original dimensions: {originalDimensions.width.toLocaleString()} × {originalDimensions.height.toLocaleString()} px
         </p>
 
