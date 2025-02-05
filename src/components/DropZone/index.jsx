@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { fileService } from '../features/upload/fileService';
+import { fileService } from '../../features/upload/fileService';
 
 // eslint-disable-next-line react/prop-types
 export function DropZone({ onFileAccepted, maxFiles }) {

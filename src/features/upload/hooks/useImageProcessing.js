@@ -21,7 +21,12 @@ export function useImageProcessing(compressionSettings, setFiles) {
     try {
       // Update status to processing
       setFiles(prev => prev.map(f => 
-        f.id === file.id ? { ...f, status: 'processing', width: file.width, height: file.height } : f
+        f.id === file.id ? { 
+          ...f, 
+          status: 'processing',
+          targetWidth: file.width,   
+          targetHeight: file.height
+        } : f
       ));
 
       // Process the image in the worker
@@ -49,6 +54,8 @@ export function useImageProcessing(compressionSettings, setFiles) {
           status: 'complete',
           preview,
           blob,
+          processedWidth: file.width,    
+          processedHeight: file.height, 
           compressedSize: compressedBuffer.byteLength,
           outputType: compressionSettings.format
         } : f

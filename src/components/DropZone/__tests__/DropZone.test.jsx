@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { DropZone } from '../../dropZone'
+import { DropZone } from '../index'
 import { createMockFile, createDataTransfer } from '../../../test/utils'
 
 describe('DropZone', () => {

@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useCallback, useMemo, useState, useEffect } from 'react';
-import { DropZone } from './dropZone';
+import { DropZone } from './DropZone';
 import { EditView } from './EditView';
 import { Button } from "@/components/ui/button";
 
@@ -37,7 +37,7 @@ export function ImageUploadContainer() {
       height: 0,
       status: 'loading'
     }));
-
+    console.log(files,'files in handlesfilesaccepted right before setting the state')
     setFiles(prev => [...prev, ...initialFiles]);
     setActiveTab('edit');
 
@@ -45,6 +45,7 @@ export function ImageUploadContainer() {
     initialFiles.forEach((fileObj) => {
       getImageDimensions(fileObj.file)
         .then(({ width, height, preview }) => {
+          console.log(files,'files in handlesfilesaccepted initialFiles right before setting the state')
           setFiles(prev => {
             const fileIndex = prev.findIndex(f => f.id === fileObj.id);
             if (fileIndex === -1) return prev;

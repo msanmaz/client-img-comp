@@ -1,116 +1,65 @@
 /* eslint-disable react/prop-types */
-export function PreviewContainer({ file, previewDimensions, settings }) {
-    const formatScale = (scale) => {
-      if (!scale && scale !== 0) return '0.000';
-      if (typeof scale === 'string') {
-        return parseFloat(scale).toFixed(3);
+export function PreviewContainer({ file, settings }) {
+  const getContainerStyle = (aspectRatio) => {
+    // Handle both formats: "16:9" and "1920x1080"
+    if (aspectRatio.includes(':')) {
+      const [width, height] = aspectRatio.split(':').map(Number);
+      return {
+        aspectRatio: `${width}/${height}`
+      };
+    } else {
+      const [width, height] = aspectRatio.split('x').map(Number);
+      return {
+        aspectRatio: `${width}/${height}`
+      };
+    }
+  };
+
+  const getDimensions = () => {
+    const { width: origWidth, height: origHeight } = file;
+    const { aspectRatio } = settings;
+    
+    let targetWidth, targetHeight;
+    if (aspectRatio.includes(':')) {
+      const [w, h] = aspectRatio.split(':').map(Number);
+      const ratio = w / h;
+      if (origWidth / origHeight > ratio) {
+        targetHeight = origHeight;
+        targetWidth = origHeight * ratio;
+      } else {
+        targetWidth = origWidth;
+        targetHeight = origWidth / ratio;
       }
-      return scale.toFixed(3);
-    };
-  
-    const getScale = () => {
-      const preview = previewDimensions[file.id];
-      if (!preview || !preview.scale) return '0.000';
-      return formatScale(preview.scale);
-    };
-  
-    const isFixedSize = (ratio) => {
-      return ratio.includes('x') && ['250x250', '1024x768', '1920x1080', '1280x720'].includes(ratio);
-    };
-  
-    const getContainerStyle = () => {
-      const { aspectRatio } = settings;
-      
-      if (isFixedSize(aspectRatio)) {
-        // For fixed dimension presets
-        const [width, height] = aspectRatio.split('x').map(Number);
-        const ratio = width / height;
+    } else {
+      [targetWidth, targetHeight] = aspectRatio.split('x').map(Number);
+    }
+    
+    return { targetWidth, targetHeight };
+  };
+
+  const dimensions = getDimensions();
+
+  return (
+    <div className="relative rounded-lg overflow-hidden">
+      <div 
+        className="relative w-full"
+        style={getContainerStyle(settings.aspectRatio)}
+      >
+        <img
+          src={file.preview}
+          alt={file.name}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
         
-        return {
-          position: 'relative',
-          paddingTop: `${(1 / ratio) * 100}%`,
-          width: '100%'
-        };
-      }
-      
-      // For aspect ratio formats (1:1, 16:9, etc.)
-      if (aspectRatio.includes(':')) {
-        const [w, h] = aspectRatio.split(':').map(Number);
-        return {
-          position: 'relative',
-          paddingTop: `${(h / w) * 100}%`,
-          width: '100%'
-        };
-      }
-      
-      // Fallback
-      const ratio = settings.width / settings.height;
-      return {
-        position: 'relative',
-        paddingTop: `${(1 / ratio) * 100}%`,
-        width: '100%'
-      };
-    };
-  
-    const getImageStyle = () => {
-      return {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        objectPosition: 'center',
-        transition: 'transform 0.3s ease-in-out'
-      };
-    };
-  
-    const getTargetDimensions = () => {
-      const { aspectRatio } = settings;
-      
-      if (isFixedSize(aspectRatio)) {
-        const [width, height] = aspectRatio.split('x').map(Number);
-        return `${width.toLocaleString()} × ${height.toLocaleString()}`;
-      }
-      
-      if (aspectRatio.includes(':')) {
-        const [w, h] = aspectRatio.split(':').map(Number);
-        const ratio = w / h;
-        const targetHeight = Math.min(file.height, Math.round(file.width / ratio));
-        const targetWidth = Math.round(targetHeight * ratio);
-        return `${targetWidth.toLocaleString()} × ${targetHeight.toLocaleString()}`;
-      }
-      
-      return `${settings.width.toLocaleString()} × ${settings.height.toLocaleString()}`;
-    };
-  
-    return (
-      <div className="bg-gray-50 rounded-lg">
-        <div 
-          className="w-full overflow-hidden"
-          style={getContainerStyle()}
-        >
-          <img
-            src={file.preview}
-            alt={file.name}
-            style={getImageStyle()}
-          />
-          
-          <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1.5 rounded text-xs backdrop-blur-sm">
-            <div className="space-y-0.5">
-              <div className="text-gray-300 text-[10px]">
-                Original: {file.width.toLocaleString()}×{file.height.toLocaleString()}
-              </div>
-              <div className="font-medium text-[10px]">
-                Target: {getTargetDimensions()}
-              </div>
-              <div className="text-blue-300 text-[10px]">
-                Scale: {getScale()}x
-              </div>
-            </div>
-          </div>
+        {/* Dimension Overlay */}
+        <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+          <div>Original: {file.width}×{file.height}</div>
+          <div>Target: {dimensions.targetWidth.toFixed(0)}×{dimensions.targetHeight.toFixed(0)}</div>
         </div>
+
+        {/* Guidelines Overlay (optional) */}
+        <div className="absolute inset-0 border-2 border-white/20 pointer-events-none" />
       </div>
-    );
-  }
-  
-  export default PreviewContainer;
+    </div>
+  );
+}
