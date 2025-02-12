@@ -4,11 +4,10 @@ import { useState, useEffect } from 'react';
 export function PreviewContainer({ file, settings }) {
   const [isLoading, setIsLoading] = useState(true);
   
-  // Reset loading state when file changes
   useEffect(() => {
     setIsLoading(true);
-  }, [file]);
-
+  }, [file.preview]); // Only reset loading when preview URL changes
+  
   const getContainerStyle = (aspectRatio) => {
     if (aspectRatio.includes(':')) {
       const [width, height] = aspectRatio.split(':').map(Number);
@@ -37,17 +36,18 @@ export function PreviewContainer({ file, settings }) {
         className="relative w-full"
         style={getContainerStyle(settings.aspectRatio)}
       >
-        {isLoading && (
-          <div className="absolute inset-0 animate-pulse bg-gray-200" />
-        )}
+        {/* Image is always visible but dimmed during loading */}
         <img
           src={file.preview}
           alt={file.name}
-          className={`absolute inset-0 w-full h-full object-cover ${
-            isLoading ? 'opacity-0' : 'opacity-100'
-          } transition-opacity duration-200`}
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-200"
           onLoad={() => setIsLoading(false)}
         />
+        
+        {/* Loading overlay */}
+        {isLoading && (
+          <div className="absolute inset-0 bg-gray-200/50 animate-pulse" />
+        )}
         
         {/* Guidelines Overlay */}
         <div className="absolute inset-0 border-2 border-white/20 pointer-events-none" />

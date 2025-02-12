@@ -21,7 +21,12 @@ export function EditView({ files, onBack, setFiles }) {
     { format: settings.outputFormat, quality: settings.quality },
     setFiles
   );
-  const { addToQueue, processingCount } = useProcessingQueue(processFile);
+  const { addToQueue, processingCount,cancelProcessing:cancelQueueProcessing } = useProcessingQueue(processFile);
+
+  const handleCancel = useCallback((fileId) => {
+    cancelProcessing(fileId);
+    cancelQueueProcessing(fileId);
+  }, [cancelProcessing, cancelQueueProcessing]);
 
   // Image dimensions loading
   useEffect(() => {
@@ -133,7 +138,7 @@ export function EditView({ files, onBack, setFiles }) {
               settings={settings}
               onImageUpdate={handleProcessImages}
               onCropComplete={handleCroppedImage}
-              onCancel={cancelProcessing}
+              onCancel={handleCancel}
             />
           </div>
 
