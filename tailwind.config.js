@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   darkMode: ["class"],
   content: ["./src/**/*.{js,jsx,ts,tsx}", "components/**/*.{js,jsx}"],
   theme: {
@@ -11,8 +11,15 @@ module.exports = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#1A1A1A",
+          light: "#2D3748",
+          dark: "#000000",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+          light: "#F8F9FA",
+          dark: "#90CAF9",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -25,10 +32,6 @@ module.exports = {
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
@@ -43,6 +46,10 @@ module.exports = {
         lg: `var(--radius)`,
         md: `calc(var(--radius) - 2px)`,
         sm: "calc(var(--radius) - 4px)",
+      },
+      gradientColorStops: {
+        'gradient-from-position': '#eff6ff', // blue-50
+        'gradient-to-position': '#fff7ed', // orange-50
       },
     },
   },

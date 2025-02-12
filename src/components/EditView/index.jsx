@@ -14,9 +14,8 @@ export function EditView({ files, onBack, setFiles }) {
     aspectRatio: '1920x1080',
     width: 0,
     height: 0,
-    quality: 75
+    quality: 50
   });
-
   // Core processing hooks
   const { processFile, cancelProcessing } = useImageProcessing(
     { format: settings.outputFormat, quality: settings.quality },
@@ -96,39 +95,57 @@ export function EditView({ files, onBack, setFiles }) {
     }));
   }, [setFiles]);
 
+    // Safety check - if no files, don't render
+    if (!files || files.length === 0) {
+      return null;
+    }
+  
+    // Get dimensions safely
+    const firstImageDimensions = files[0]?.id 
+      ? imageDimensions[files[0].id] || { width: 0, height: 0 }
+      : { width: 0, height: 0 };
+
   return (
-    <div className="max-w-6xl mx-auto bg-gray-100 text-gray-700" data-testid="edit-view">
-      <div className="flex items-center justify-between gap-4 mb-6">
-        <Button variant="ghost" onClick={onBack} className="gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
-        <div className="text-sm text-gray-500">
-          {processingCount > 0 && `Processing ${processingCount} images...`}
+    <div className="min-h-screen p-6 bg-gray-100/80 backdrop-blur-sm text-gray-700" data-testid="edit-view">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between gap-4 mb-6">
+          <Button variant="ghost" onClick={onBack} className="gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+          <div className="text-sm text-gray-500">
+            {processingCount > 0 && `Processing ${processingCount} images...`}
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="rounded-lg shadow-sm p-6">
+            <OutputSettings 
+              settings={settings} 
+              onSettingsChange={setSettings}
+              originalDimensions={firstImageDimensions}
+            />
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <ImageGrid 
+              files={files}
+              settings={settings}
+              onImageUpdate={handleProcessImages}
+              onCropComplete={handleCroppedImage}
+              onCancel={cancelProcessing}
+            />
+          </div>
+
+          <Button
+            className="w-full py-6 text-lg text-white"
+            onClick={() => handleProcessImages(files)}
+            disabled={processingCount > 0}
+          >
+            {processingCount > 0 ? `Processing ${processingCount} images...` : 'Process All Images'}
+          </Button>
         </div>
       </div>
-
-      <OutputSettings 
-        settings={settings} 
-        onSettingsChange={setSettings}
-        originalDimensions={imageDimensions[files[0]?.id] || { width: 0, height: 0 }}
-      />
-
-      <ImageGrid 
-        files={files}
-        settings={settings}
-        onImageUpdate={handleProcessImages}
-        onCropComplete={handleCroppedImage}
-        onCancel={cancelProcessing}
-      />
-
-      <Button
-        className="w-full mt-6"
-        onClick={() => handleProcessImages(files)}
-        disabled={processingCount > 0}
-      >
-        {processingCount > 0 ? `Processing ${processingCount} images...` : 'Process All Images'}
-      </Button>
     </div>
   );
 }

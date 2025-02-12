@@ -1,9 +1,5 @@
-import { ImageUploadPage } from "../pages/ImageUploadPage";
+import Index from "../pages/index";
 
 export default function Home() {
-  return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <ImageUploadPage/>
-    </div>
-  );
+  return <Index />;
 }

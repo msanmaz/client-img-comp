@@ -160,7 +160,7 @@ export function ImageGrid({ files, onImageUpdate, onCropComplete, previewDimensi
                     </Button>
                     <Button
                       onClick={() => onImageUpdate([file])}
-                      className="w-full h-11 gap-2"
+                      className="w-full h-11 gap-2 text-white"
                       disabled={file.status === 'processing'}
                     >
                       {file.status === 'processing' ? (
