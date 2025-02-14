@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export function useProcessingQueue(processFile) {
-  const MAX_PARALLEL = 3;
+  const MAX_PARALLEL = 20;
   const processingFiles = useRef(new Set());
   const [queue, setQueue] = useState([]);
   const isProcessing = useRef(false);

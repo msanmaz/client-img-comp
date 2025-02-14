@@ -14,7 +14,7 @@ export function EditView({ files, onBack, setFiles }) {
     aspectRatio: '1920x1080',
     width: 0,
     height: 0,
-    quality: 50
+    quality: 30
   });
   // Core processing hooks
   const { processFile, cancelProcessing } = useImageProcessing(
